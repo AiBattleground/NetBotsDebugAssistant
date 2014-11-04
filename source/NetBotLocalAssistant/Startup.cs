@@ -29,7 +29,7 @@ namespace NetBotLocalAssistant
                 string stringToRender = null;
                 if (contentType == "text/json")
                 {
-                    stringToRender = RelayJsonRequest(path, context).Result;
+                    stringToRender = RelayJsonRequest(context).Result;
                 }
                 else
                 {
@@ -43,7 +43,7 @@ namespace NetBotLocalAssistant
             });
         }
 
-        private async Task<string> RelayJsonRequest(string path, IOwinContext context)
+        private async Task<string> RelayJsonRequest(IOwinContext context)
         {
             byte[] bytes = GetBytesFromBody(context.Request.Body);
             var myString = System.Text.Encoding.Default.GetString(bytes);

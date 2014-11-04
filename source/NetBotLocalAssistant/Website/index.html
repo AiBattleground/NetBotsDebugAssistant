@@ -18,14 +18,17 @@
         <div id="skirmish-options" class="container">
             <div class="row">
                 <div class="col-sm-2 form-group">
-                    <label>Red</label>
-                    <select id="red-selection" placeholder="choose a bot..." class="form-control">
+                    <label>Your Address</label>
+                    <input type="text" id="client-address" placeholder="Type your bot's IP address here...'" class="form-control">
+                </div>
+                <div class="col-sm-2 form-group">
+                    <label>Enemy</label>
+                    <select id="enemy-selection" placeholder="choose a bot..." class="form-control">
                     </select>
                 </div>
                 <div class="col-sm-2 form-group">
-                    <label>Blue</label>
-                    <select id="blue-selection" placeholder="choose a bot..." class="form-control">
-                    </select>
+                    <input id="p1-select" type="radio" name="side" value="p1">Player 1<br>
+                    <input type="radio" name="side" value="p2">Player 2
                 </div>
             </div>
             <div class="row">
@@ -61,7 +64,7 @@
             </div>
 
             <div class="hidden">
-                <img id="energy-image" src="images/iconSprite.png" alt="energy" />
+                <img id="energy-image" src="http://aibattleground.com/Images/iconSprite.png" alt="energy" />
             </div>
         </div>
         
@@ -79,26 +82,21 @@
                     dataType: "json",
                     success: function(response) {
                         $.each(response, function (i, bot) {
-                            addToSelect("#red-selection", bot);
-                            addToSelect("#blue-selection", bot);
+                            $("#enemy-selection").append($("<option></option>").attr("value", bot.id).text(bot.name));
                         });
                     }
                 });
             });
 
-            function addToSelect(selectId, data) {
-                $(selectId).append($("<option></option>").attr("value", data.id).text(data.name));
-            }
-
             $("#new-game").on('click', function () {
-                var redSelection = $('#red-selection').val();
-                var blueSelection = $('#blue-selection').val();
-                $('#red-name').text($('#red-selection option:selected').text());
-                $('#blue-name').text($('#blue-selection option:selected').text());
+                var redSelection = $('#enemy-selection').val();
+                $('#red-name').text($('#enemy-selection option:selected').text());
+                $('#blue-name').text("Your bot");
+                var side = $("#p1-select").val() == true ? "p1" : "p2";
                 $.ajax({
                     url: rootAddress + "startgame",
                     type: "POST",
-                    data: { opponentId: redSelection, side: "p1" },
+                    data: { opponentId: redSelection, side: side },
                     dataType: "json",
                     success: function (gameState) {
                         showTurn(gameState);
@@ -109,12 +107,13 @@
 
             function runGame(gameState) {
                 var moveRequest = new Object();
-                moveRequest.player = "p1";
-                moveRequest.gameState = gameState;
+                moveRequest.player = $("#p1-select").val() == true ? "p1" : "p2";
+                moveRequest.state = gameState;
+                var clientAddress = $("#client-address").val();
                 $.ajax({
                     url: "relay.json",
                     type: "POST",
-                    data: JSON.stringify({ payload: moveRequest, destination: "randombot.azurewebsites.net/api/bot" }),
+                    data: JSON.stringify({ payload: moveRequest, destination: clientAddress }),
                     dataType: "json",
                     success: function(localMoves) {
                         $.ajax({

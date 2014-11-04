@@ -72,13 +72,13 @@
     <None Include="Website\config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Website\fonts\glyphicons-halflings-regular.eot">
+    <None Include="Website\css\fonts\glyphicons-halflings-regular.eot">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Website\fonts\glyphicons-halflings-regular.ttf">
+    <None Include="Website\css\fonts\glyphicons-halflings-regular.ttf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Website\fonts\glyphicons-halflings-regular.woff">
+    <None Include="Website\css\fonts\glyphicons-halflings-regular.woff">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -98,7 +98,7 @@
     <Content Include="Website\css\site.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Website\fonts\glyphicons-halflings-regular.svg">
+    <Content Include="Website\css\fonts\glyphicons-halflings-regular.svg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Website\images\iconSprite.png" />
