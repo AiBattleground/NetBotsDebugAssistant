@@ -11,9 +11,11 @@ namespace NetBotLocalAssistant
     {
         static void Main(string[] args)
         {
-            using (Microsoft.Owin.Hosting.WebApp.Start<Startup>("http://localhost:9001"))
+            var address = "http://localhost:9001";
+            using (Microsoft.Owin.Hosting.WebApp.Start<Startup>(address))
             {
-                Console.WriteLine("Press [enter] to quit...");
+                Console.WriteLine("Point your browser to {0}", address);
+                Console.WriteLine("Press [enter] to quit the server...");
                 Console.ReadLine();
             }
         }
