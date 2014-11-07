@@ -19,7 +19,7 @@
             <div class="row">
                 <div class="col-sm-2 form-group">
                     <label>Your Address</label>
-                    <input type="text" id="client-address" placeholder="Type your bot's IP address here...'" class="form-control">
+                    <input type="text" id="client-address" placeholder="localhost:1234/bot" class="form-control">
                 </div>
                 <div class="col-sm-2 form-group">
                     <label>Enemy</label>
@@ -27,8 +27,13 @@
                     </select>
                 </div>
                 <div class="col-sm-2 form-group">
+                    <label>Choose Your Side:</label><br/>
                     <input id="p1-select" type="radio" name="side" value="p1">Player 1<br>
                     <input type="radio" name="side" value="p2">Player 2
+                </div>
+                <div class="col-sm-2 form-group">
+                    <label>Game Seed</label>
+                    <input type="text" id="seed">
                 </div>
             </div>
             <div class="row">
@@ -74,7 +79,7 @@
         <script src="js/warViewer.js"></script>
 
         <script type="text/javascript">
-            rootAddress = "http://aibattleground.com/api/";
+            rootAddress = "http://localhost:53299/api/";
             $(document).ready(function () {
                 $.ajax({
                     url: rootAddress + "botlist",
@@ -89,6 +94,7 @@
             });
 
             $("#new-game").on('click', function () {
+                var seed = getSetSeed();
                 var redSelection = $('#enemy-selection').val();
                 $('#red-name').text($('#enemy-selection option:selected').text());
                 $('#blue-name').text("Your bot");
@@ -96,7 +102,7 @@
                 $.ajax({
                     url: rootAddress + "startgame",
                     type: "POST",
-                    data: { opponentId: redSelection, side: side },
+                    data: { opponentId: redSelection, side: side, seed: seed },
                     dataType: "json",
                     success: function (gameState) {
                         showTurn(gameState);
@@ -104,6 +110,15 @@
                     }
                 });
             });
+
+            function getSetSeed() {
+                var seed = $("#seed").val();
+                if (seed.length < 1) {
+                    seed = Math.ceil(Math.random() * 100000000);
+                    $("#seed").val(seed);
+                }
+                return seed;
+            }
 
             function runGame(gameState) {
                 var moveRequest = new Object();
