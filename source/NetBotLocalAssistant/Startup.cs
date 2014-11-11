@@ -25,19 +25,24 @@ namespace NetBotLocalAssistant
             {
                 var path = GetPath(context);
                 var contentType = GetContentType(path);
+                context.Response.ContentType = contentType;
 
                 string stringToRender = null;
                 if (contentType == "text/json")
                 {
                     stringToRender = RelayJsonRequest(context).Result;
+                    return context.Response.WriteAsync(stringToRender);
+                }
+                else if (contentType.Contains("text"))
+                {
+                    stringToRender = GetFileString(path);
+                    return context.Response.WriteAsync(stringToRender);
                 }
                 else
                 {
-                    stringToRender = GetFile(path);
+                    byte[] file = GetFileBytes(path);
+                    return context.Response.WriteAsync(file);
                 }
-
-                context.Response.ContentType = contentType;
-                return context.Response.WriteAsync(stringToRender);
             });
         }
 
@@ -69,11 +74,16 @@ namespace NetBotLocalAssistant
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error communicating with local testing bot. Full error was:");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex);
+                WriteErrorToConsole(ex, "Error communicating with local testing bot. Full error was:");
                 return "{ Error: " + ex.Message + " }";
             }
+        }
+
+        private static void WriteErrorToConsole(Exception ex, string errorMessage)
+        {
+            Console.WriteLine(errorMessage);
+            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex);
         }
 
         private byte[] GetBytesFromBody(Stream input)
@@ -95,13 +105,18 @@ namespace NetBotLocalAssistant
             var extension = GetExtension(path);
             switch (extension)
             {
-                case "js":  return "text/javascript";
+                case "js": 
                 case "html":
-                case "htm": return "text/html";
-                case "png": return "image/png";
-                case "css": return "text/css";
-                case "json": return "text/json";
-                default: return "text";
+                case "htm": 
+                case "css":
+                case "json": return "text/" + extension;
+
+                case "png": 
+                case "jpg":
+                case "gif": return "image/" + extension;
+
+                case "woff": return "application/font-woff";
+                default: return "application/" + extension;
             }
         }
 
@@ -122,7 +137,7 @@ namespace NetBotLocalAssistant
             return path;
         }
 
-        private string GetFile(string path)
+        private string GetFileString(string path)
         {
             try
             {
@@ -134,9 +149,26 @@ namespace NetBotLocalAssistant
                     return text;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                WriteErrorToConsole(ex, "Error loading text file " + path);
                 return "Could not find that page";
+            }
+        }
+
+        private byte[] GetFileBytes(string path)
+        {
+            try
+            {
+                var fullPath = _basePath + "\\Website" + path;
+                fullPath = fullPath.Replace('/', '\\');
+                byte[] bytes = File.ReadAllBytes(fullPath);
+                return bytes;
+            }
+            catch (Exception ex)
+            {
+                WriteErrorToConsole(ex, "Error loading binary file " + path);
+                return null;
             }
         }
     }

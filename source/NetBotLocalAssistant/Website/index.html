@@ -1,4 +1,5 @@
-﻿<html>
+﻿<!DOCTYPE html>
+<html>
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -28,12 +29,25 @@
                 </div>
                 <div class="col-sm-2 form-group">
                     <label>Choose Your Side:</label><br/>
-                    <input id="p1-select" type="radio" name="side" value="p1">Player 1<br>
+                    <input id="p1-select" type="radio" name="side" value="p1" checked="checked">Player 1<br>
                     <input id="p2-select" type="radio" name="side" value="p2">Player 2
                 </div>
+            </div>
+            <div class="row">
                 <div class="col-sm-2 form-group">
                     <label>Game Seed</label>
                     <input type="text" id="seed">
+                </div>
+                <div class="col-sm-2 form-group">
+                    <label>CORS?</label><br/>
+                    <input id="cors-on" type="checkbox" name="side" value="p1"> Enable CORS?
+                    <span class="glyphicon  glyphicon-question-sign" data-toggle="tooltip"
+                          data-placement="bottom" title="By default, Javascript calls are restricted by the 'same origin' policy. This means that 
+                          calls to your local bot from this browser window would fail by default, so these calls are relayed through the local server
+                          hosting this page. However, if you have enabled CORS on your bot api, the javascript may be able to communicate directly
+                          without the server relay. This could make debugging easier for you. If you have the C# 'Netbots Starter Kit', CORS
+                          is enabled by default.">
+                    </span>
                 </div>
             </div>
             <div class="row">
@@ -70,7 +84,7 @@
             </div>
 
             <div class="hidden">
-                <img id="energy-image" src="http://aibattleground.com/Images/iconSprite.png" alt="energy" />
+                <img id="energy-image" src="images/iconSprite.png" alt="energy" />
             </div>
         </div>
         
@@ -82,6 +96,9 @@
 
         <script type="text/javascript">
             rootAddress = "http://localhost:53299/api/";
+
+            $(function () { $("[data-toggle='tooltip']").tooltip(); });
+
             $(document).ready(function () {
                 getDropDowns();
                 getLastAddress();
@@ -187,10 +204,10 @@
                 $.ajax({
                     url: clientAddress,
                     type: "POST",
-                    data: JSON.stringify(moveRequest),
+                    data: moveRequest,
                     dataType: "json",
                     success: function (localMoves) {
-                        updateGame(localMoves);
+                        updateGame(localMoves, moveRequest.state);
                     },
                     error: function (error) {
                         writeError(error);
@@ -206,7 +223,12 @@
                 var moveRequest = new Object();
                 moveRequest.player = getSide();
                 moveRequest.state = gameState;
-                getMoves(moveRequest);
+                if ($('#cors-on').is(':checked')) {
+                    getMovesCors(moveRequest);
+                } else {
+                    getMoves(moveRequest);
+                }
+                
             }
 
             function getSide() {
