@@ -36,8 +36,6 @@ namespace NetBotLocalAssistant
                     stringToRender = GetFile(path);
                 }
 
-                
-
                 context.Response.ContentType = contentType;
                 return context.Response.WriteAsync(stringToRender);
             });
@@ -45,23 +43,37 @@ namespace NetBotLocalAssistant
 
         private async Task<string> RelayJsonRequest(IOwinContext context)
         {
-            byte[] bytes = GetBytesFromBody(context.Request.Body);
-            var myString = System.Text.Encoding.Default.GetString(bytes);
-            myString = System.Net.WebUtility.UrlDecode(myString);
-            var myObject = JObject.Parse(myString);
-            var payload = myObject["payload"];
-            var address = (string)myObject["destination"];
-            if (!address.StartsWith("http://") && !address.StartsWith("https://"))
+            try
             {
-                address = "http://" + address;
-            }
-            string payloadJson = payload.ToString();
-            var content = new StringContent(payloadJson, Encoding.UTF8, "application/json");
+                byte[] bytes = GetBytesFromBody(context.Request.Body);
+                var myString = System.Text.Encoding.Default.GetString(bytes);
+                myString = System.Net.WebUtility.UrlDecode(myString);
+                var myObject = JObject.Parse(myString);
+                var payload = myObject["payload"];
+                var address = (string) myObject["destination"];
+                if (!address.StartsWith("http://") && !address.StartsWith("https://"))
+                {
+                    address = "http://" + address;
+                }
+                string payloadJson = payload.ToString();
+                var content = new StringContent(payloadJson, Encoding.UTF8, "application/json");
 
-            var response = await _client.PostAsync(address, content);
-            response.EnsureSuccessStatusCode();
-            var responeString = await response.Content.ReadAsStringAsync();
-            return responeString;
+                var response = await _client.PostAsync(address, content);
+                response.EnsureSuccessStatusCode();
+                var responeString = await response.Content.ReadAsStringAsync();
+                if (String.IsNullOrWhiteSpace(responeString))
+                {
+                    responeString = "{ }";
+                }
+                return responeString;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error communicating with local testing bot. Full error was:");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex);
+                return "{ Error: " + ex.Message + " }";
+            }
         }
 
         private byte[] GetBytesFromBody(Stream input)

@@ -29,7 +29,7 @@
                 <div class="col-sm-2 form-group">
                     <label>Choose Your Side:</label><br/>
                     <input id="p1-select" type="radio" name="side" value="p1">Player 1<br>
-                    <input type="radio" name="side" value="p2">Player 2
+                    <input id="p2-select" type="radio" name="side" value="p2">Player 2
                 </div>
                 <div class="col-sm-2 form-group">
                     <label>Game Seed</label>
@@ -61,6 +61,7 @@
                         </div>
                         <p id="turn-number"></p>
                         <p>Our aerial reconnaissance vehicles are picking up the following feed of the battle as it unfolds. </p>
+                        <p id="seed-output"></p>
                     </div>
                     <div class="col-md-6">
                         <canvas id="game" height="500" width="500" style="border-color: lightgrey; border-style: solid; border-width:2px;"></canvas>
@@ -77,36 +78,61 @@
         <script src="js/jquery-2.1.1.js"></script>
         <script src="js/bootstrap.min.js"></script>
         <script src="js/warViewer.js"></script>
+        <script src="js/jquery.cookie.js"></script>
 
         <script type="text/javascript">
             rootAddress = "http://localhost:53299/api/";
             $(document).ready(function () {
+                getDropDowns();
+                getLastAddress();
+            });
+
+            function getLastAddress() {
+                var address = $.cookie('client-address');
+                $("#client-address").val(address);
+            }
+
+            function getDropDowns() {
                 $.ajax({
                     url: rootAddress + "botlist",
                     crossDomain: true,
                     dataType: "json",
-                    success: function(response) {
+                    success: function (response) {
                         $.each(response, function (i, bot) {
                             $("#enemy-selection").append($("<option></option>").attr("value", bot.id).text(bot.name));
                         });
+                    },
+                    error: function (error) {
+                        writeError(error);
                     }
                 });
-            });
-
+            }
+ 
             $("#new-game").on('click', function () {
+                var clientAddress = $("#client-address").val();
+                $.cookie('client-address', clientAddress);
                 var seed = getSetSeed();
-                var redSelection = $('#enemy-selection').val();
-                $('#red-name').text($('#enemy-selection option:selected').text());
-                $('#blue-name').text("Your bot");
-                var side = $("#p1-select").val() == true ? "p1" : "p2";
+                var enemyBot = $('#enemy-selection').val();
+                var side = getSide();
+                if (side == "P1") {
+                    $('#blue-name').text($('#enemy-selection option:selected').text());
+                    $('#red-name').text("Your bot");
+                }
+                if (side == "P2") {
+                    $('#red-name').text($('#enemy-selection option:selected').text());
+                    $('#blue-name').text("Your bot");
+                }
                 $.ajax({
                     url: rootAddress + "startgame",
                     type: "POST",
-                    data: { opponentId: redSelection, side: side, seed: seed },
+                    data: { opponentId: enemyBot, side: side, seed: seed },
                     dataType: "json",
                     success: function (gameState) {
                         showTurn(gameState);
                         runGame(gameState);
+                    },
+                    error: function (error) {
+                        writeError(error);
                     }
                 });
             });
@@ -115,36 +141,83 @@
                 var seed = $("#seed").val();
                 if (seed.length < 1) {
                     seed = Math.ceil(Math.random() * 100000000);
-                    $("#seed").val(seed);
+                    $("#seed-output").text("Your game's seed value is " + seed + "\r\n" +
+                        "Enter this value above to replay energy spawn positions in a future game" +
+                        "Note: Enemy bots may use their own hidden randomizers in their algorithms, " +
+                        "so it may not be possible to replay the game exactly");
                 }
                 return seed;
             }
 
-            function runGame(gameState) {
-                var moveRequest = new Object();
-                moveRequest.player = $("#p1-select").val() == true ? "p1" : "p2";
-                moveRequest.state = gameState;
+            function getMoves(moveRequest) {
                 var clientAddress = $("#client-address").val();
                 $.ajax({
                     url: "relay.json",
                     type: "POST",
                     data: JSON.stringify({ payload: moveRequest, destination: clientAddress }),
                     dataType: "json",
-                    success: function(localMoves) {
-                        $.ajax({
-                            url: rootAddress + "updategame",
-                            type: "POST",
-                            data: { clientMoves: localMoves, gameState: gameState },
-                            success: function(newGameState) {
-                                if (newGameState.turnsElapsed < newGameState.maxTurns) {
-                                    showTurn(newGameState);
-                                    runGame(newGameState);
-                                }
-                            }
-                        });
+                    success: function (localMoves) {
+                        updateGame(localMoves, moveRequest.state);
+                    },
+                    error: function(error) {
+                        writeError(error);
                     }
                 });
             }
+
+            function updateGame(localMoves, gameState) {
+                $.ajax({
+                    url: rootAddress + "updategame",
+                    type: "POST",
+                    data: { clientMoves: localMoves, gameState: gameState },
+                    success: function (newGameState) {
+                        if (newGameState.turnsElapsed < newGameState.maxTurns) {
+                            showTurn(newGameState);
+                            runGame(newGameState);
+                        }
+                    },
+                    error: function (error) {
+                        writeError(error);
+                    }
+                });
+            }
+
+            function getMovesCors(moveRequest) {
+                var clientAddress = $("#client-address").val();
+                $.ajax({
+                    url: clientAddress,
+                    type: "POST",
+                    data: JSON.stringify(moveRequest),
+                    dataType: "json",
+                    success: function (localMoves) {
+                        updateGame(localMoves);
+                    },
+                    error: function (error) {
+                        writeError(error);
+                    }
+                });
+            }
+
+            function writeError(error) {
+                alert("Error: " + error.responseText);
+            }
+
+            function runGame(gameState) {
+                var moveRequest = new Object();
+                moveRequest.player = getSide();
+                moveRequest.state = gameState;
+                getMoves(moveRequest);
+            }
+
+            function getSide() {
+                var side = "P1";
+                if ($('#p2-select').is(':checked')) {
+                    side = "P2";
+                }
+                return side;
+            }
+
+
         </script>
     </body>
 </html>

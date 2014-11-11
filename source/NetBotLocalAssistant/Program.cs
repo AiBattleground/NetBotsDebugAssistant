@@ -15,7 +15,8 @@ namespace NetBotLocalAssistant
             using (Microsoft.Owin.Hosting.WebApp.Start<Startup>(address))
             {
                 Console.WriteLine("Point your browser to {0}", address);
-                Console.WriteLine("Press [enter] to quit the server...");
+                Console.WriteLine("Some errors may appear in this console screen.");
+                Console.WriteLine("Press [Enter] to close this window and shut down the debug server...");
                 Console.ReadLine();
             }
         }
