@@ -33,16 +33,8 @@ namespace NetBotLocalAssistant
                     stringToRender = RelayJsonRequest(context).Result;
                     return context.Response.WriteAsync(stringToRender);
                 }
-                else if (contentType.Contains("text"))
-                {
-                    stringToRender = GetFileString(path);
-                    return context.Response.WriteAsync(stringToRender);
-                }
-                else
-                {
-                    byte[] file = GetFileBytes(path);
-                    return context.Response.WriteAsync(file);
-                }
+                byte[] file = GetFileBytes(path);
+                return context.Response.WriteAsync(file);
             });
         }
 
@@ -105,7 +97,8 @@ namespace NetBotLocalAssistant
             var extension = GetExtension(path);
             switch (extension)
             {
-                case "js": 
+                case "js": return "application/javascript";
+
                 case "html":
                 case "htm": 
                 case "css":
