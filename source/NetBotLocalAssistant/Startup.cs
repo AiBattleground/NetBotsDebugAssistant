@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Owin;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Owin;
 
@@ -27,10 +25,9 @@ namespace NetBotLocalAssistant
                 var contentType = GetContentType(path);
                 context.Response.ContentType = contentType;
 
-                string stringToRender = null;
                 if (contentType == "text/json")
                 {
-                    stringToRender = RelayJsonRequest(context).Result;
+                    var stringToRender = RelayJsonRequest(context).Result;
                     return context.Response.WriteAsync(stringToRender);
                 }
                 byte[] file = GetFileBytes(path);
@@ -43,11 +40,11 @@ namespace NetBotLocalAssistant
             try
             {
                 byte[] bytes = GetBytesFromBody(context.Request.Body);
-                var myString = System.Text.Encoding.Default.GetString(bytes);
+                var myString = Encoding.Default.GetString(bytes);
                 myString = System.Net.WebUtility.UrlDecode(myString);
                 var myObject = JObject.Parse(myString);
                 var payload = myObject["payload"];
-                var address = (string) myObject["destination"];
+                var address = (string)myObject["destination"];
                 if (!address.StartsWith("http://") && !address.StartsWith("https://"))
                 {
                     address = "http://" + address;
@@ -66,12 +63,13 @@ namespace NetBotLocalAssistant
             }
             catch (Exception ex)
             {
-                WriteErrorToConsole(ex, "Error communicating with local testing bot. Full error was:");
-                return "{ Error: " + ex.Message + " }";
+                WriteErrorToConsole("Error communicating with local testing bot. Full error was:", ex);
+                return "{ Error: " + ex.Message + " }. Check the Console for more detailed inforamton." +
+                       "If your bot has CORS, you may want to check the 'Enable CORS' button";
             }
         }
 
-        private static void WriteErrorToConsole(Exception ex, string errorMessage)
+        private static void WriteErrorToConsole(string errorMessage, Exception ex)
         {
             Console.WriteLine(errorMessage);
             Console.WriteLine(ex.Message);
@@ -130,25 +128,6 @@ namespace NetBotLocalAssistant
             return path;
         }
 
-        private string GetFileString(string path)
-        {
-            try
-            {
-                var fullPath = _basePath + "\\Website" + path;
-                fullPath = fullPath.Replace('/', '\\');
-                using (StreamReader sr = File.OpenText(fullPath))
-                {
-                    var text = sr.ReadToEnd();
-                    return text;
-                }
-            }
-            catch (Exception ex)
-            {
-                WriteErrorToConsole(ex, "Error loading text file " + path);
-                return "Could not find that page";
-            }
-        }
-
         private byte[] GetFileBytes(string path)
         {
             try
@@ -160,7 +139,7 @@ namespace NetBotLocalAssistant
             }
             catch (Exception ex)
             {
-                WriteErrorToConsole(ex, "Error loading binary file " + path);
+                WriteErrorToConsole("Error loading binary file " + path, ex);
                 return null;
             }
         }
