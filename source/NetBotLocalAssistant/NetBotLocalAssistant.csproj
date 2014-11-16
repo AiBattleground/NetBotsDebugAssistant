@@ -124,7 +124,7 @@
     <Content Include="Website\images\iconSprite.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Website\index.html">
+    <Content Include="index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Website\js\bootstrap.js">
