@@ -96,8 +96,8 @@
         <script src="js/jquery.cookie.js"></script>
 
         <script type="text/javascript">
-            //rootAddress = "http://localhost:53299/api/";
-            rootAddress = "http://aibattleground.com/api/";
+            rootAddress = "http://localhost:53299/api/";
+            //rootAddress = "http://aibattleground.com/api/";
 
             $(function () { $("[data-toggle='tooltip']").tooltip(); });
 
@@ -140,25 +140,37 @@
                 });
             }
 
+
  
             $("#new-game").on('click', function () {
                 var clientAddress = $("#client-address").val();
                 $.cookie('client-address', clientAddress);
                 var seed = getSetSeed();
-                var enemyBot = $('#enemy-selection').val();
                 var side = getSide();
+                var p1Id = -1;
+                var p2Id = -1;
                 if (side == "P1") {
-                    $('#blue-name').text($('#enemy-selection option:selected').text());
-                    $('#red-name').text("Your bot");
+                    $('#red-name').text($('#client-address').val());
+                    if ($('#enemy-selection').is(':visible')) {
+                        $('#blue-name').text($('#enemy-selection option:selected').text());
+                        p1Id = $('#enemy-selection').val();
+                    } else {
+                        $('#blue-name').text($('#enemy-address').val());
+                    }
                 }
                 if (side == "P2") {
-                    $('#red-name').text($('#enemy-selection option:selected').text());
-                    $('#blue-name').text("Your bot");
+                    $('#blue-name').text($('#client-address').val());
+                    if ($('#enemy-selection').is(':visible')) {
+                        $('#red-name').text($('#enemy-selection option:selected').text());
+                        p2Id = $('#enemy-selection').val();
+                    } else {
+                        $('#red-name').text($('#enemy-address').val());
+                    }
                 }
                 $.ajax({
                     url: rootAddress + "startgame",
                     type: "POST",
-                    data: { opponentId: enemyBot, side: side, seed: seed },
+                    data: { p1Id: p1Id, p2Id: p2Id, seed: seed },
                     dataType: "json",
                     success: function (gameState) {
                         showTurn(gameState);
@@ -182,22 +194,6 @@
                 return seed;
             }
 
-            function getMoves(moveRequest) {
-                var clientAddress = $("#client-address").val();
-                $.ajax({
-                    url: "relay.json",
-                    type: "POST",
-                    data: JSON.stringify({ payload: moveRequest, destination: clientAddress }),
-                    dataType: "json",
-                    success: function (localMoves) {
-                        updateGame(localMoves, moveRequest.state);
-                    },
-                    error: function(error) {
-                        writeError(error);
-                    }
-                });
-            }
-
             function updateGame(localMoves, gameState) {
                 $.ajax({
                     url: rootAddress + "updategame",
@@ -217,6 +213,17 @@
                 });
             }
 
+
+            function getMovesRelay(moveRequest) {
+                var clientAddress = $("#client-address").val();
+                $.ajax({
+                    url: "relay.json",
+                    type: "POST",
+                    data: JSON.stringify({ payload: moveRequest, destination: clientAddress }),
+                    dataType: "json",
+                });
+            }
+
             function getMovesCors(moveRequest) {
                 var clientAddress = $("#client-address").val();
                 $.ajax({
@@ -224,13 +231,18 @@
                     type: "POST",
                     data: moveRequest,
                     dataType: "json",
-                    success: function (localMoves) {
-                        updateGame(localMoves, moveRequest.state);
-                    },
-                    error: function (error) {
-                        writeError(error);
-                    }
                 });
+            }
+
+            function getMoves(gameState, playerName) {
+                var moveRequest = new Object();
+                moveRequest.player = playerName;
+                moveRequest.state = gameState;
+                if ($('#cors-on').is(':checked')) {
+                    return getMovesCors(moveRequest);
+                } else {
+                    return getMovesRelay(moveRequest);
+                }
             }
 
             function writeError(error) {
@@ -238,15 +250,16 @@
             }
 
             function runGame(gameState) {
-                var moveRequest = new Object();
-                moveRequest.player = getSide();
-                moveRequest.state = gameState;
-                if ($('#cors-on').is(':checked')) {
-                    getMovesCors(moveRequest);
+                var p1Moves = getP1Moves(gameState);
+
+            }
+
+            function getP1Moves(gameState) {
+                if ($('#p1-select').is(':checked')) {
+                    return getMoves(gameState, "p1");
                 } else {
-                    getMoves(moveRequest);
+                    
                 }
-                
             }
 
             function getSide() {
