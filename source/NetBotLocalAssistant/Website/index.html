@@ -191,7 +191,7 @@
                     success: function (newGameState) {
                         if (newGameState.turnsElapsed < newGameState.maxTurns) {
                             showTurn(newGameState);
-                            if (typeof newGameState.winner === "undefined") {
+                            if (newGameState.winner == null) {
                                 runGame(newGameState);
                             }
                         }
