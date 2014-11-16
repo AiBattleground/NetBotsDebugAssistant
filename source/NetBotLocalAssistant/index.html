@@ -1,0 +1,276 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="A viewer for NetBots matches">
+        <meta name="author" content="Zachary Shuford">
+		
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/bootstrap-theme.css" rel="stylesheet">
+        <link href="css/site.css" rel="stylesheet">
+		
+        <title>
+            MatchDebugger
+        </title>
+    </head>
+    <body>
+        <div id="skirmish-options" class="container">
+            <div class="row">
+                <div class="col-sm-2 form-group">
+                    <label>Your Address</label>
+                    <input type="text" id="client-address" placeholder="localhost:1234/bot" class="form-control">
+                </div>
+                <div class="col-sm-2 form-group">
+                    <div><label>Enemy</label></div>
+                    <select id="enemy-selection" placeholder="choose a bot..." class="form-control"></select>
+                    <input type="text" id="enemy-address" placeholder="localhost:1234/bot" class="form-control">
+                    <div style="font-size: x-small"><input class="small" id="fight-local" type="checkbox" name="side" value="p1">Fight Local Bot</div>
+                </div>
+                <div class="col-sm-2 form-group">
+                    <label>Choose Your Side:</label><br/>
+                    <input id="p1-select" type="radio" name="side" value="p1" checked="checked">Player 1<br>
+                    <input id="p2-select" type="radio" name="side" value="p2">Player 2
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2 form-group">
+                    <label>Game Seed</label>
+                    <input type="text" id="seed">
+                </div>
+                <div class="col-sm-2 form-group">
+                    <label>CORS?</label><br/>
+                    <input id="cors-on" type="checkbox" name="side" value="p1"> Enable CORS?
+                    <span class="glyphicon  glyphicon-question-sign" data-toggle="tooltip"
+                          data-placement="bottom" title="By default, Javascript calls are restricted by the 'same origin' policy. This means that 
+                          calls to your local bot from this browser window would fail. To avoid this, these calls are relayed through the local server
+                          hosting this page. However, if you have enabled CORS on your bot api, the javascript may be able to communicate directly
+                          without the server relay. This could make debugging in the browser console easier for you. If you have the C# 'Netbots Starter Kit', CORS
+                          is enabled by default.">
+                    </span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <button id="new-game" class="btn">Fight!</button>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="container">
+            <div id="warview-grid">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div id="red-wrap" class="alert alert-danger parent-div">
+                            <div class="col-sm-12" id="red-name">Red Player</div>
+                            <div class="col-sm-10">Number of Bots: </div><div id="red-count" class="col-sm-2">1</div>
+                            <div class="col-sm-10">Energy: </div><div id="red-energy" class="col-sm-2">1</div>
+                            <div class="col-sm-10" id="red-game-end-message"></div>
+                        </div>
+                        <div id="blue-wrap" class="alert alert-info parent-div">
+                            <div class="col-sm-12" id="blue-name">Blue Player</div>
+                            <div class="col-sm-10">Number of Bots: </div><div id="blue-count" class="col-sm-2">1</div>
+                            <div class="col-sm-10">Energy: </div><div id="blue-energy" class="col-sm-2">1</div>
+                            <div class="col-sm-10" id="blue-game-end-message"></div>
+                        </div>
+                        <p id="turn-number"></p>
+                        <p>Our aerial reconnaissance vehicles are picking up the following feed of the battle as it unfolds. </p>
+                        <p id="seed-output"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <canvas id="game" height="500" width="500" style="border-color: lightgrey; border-style: solid; border-width:2px;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hidden">
+                <img id="energy-image" src="images/iconSprite.png" alt="energy" />
+            </div>
+        </div>
+        
+        
+        <script src="js/jquery-2.1.1.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/warViewer.js"></script>
+        <script src="js/jquery.cookie.js"></script>
+
+        <script type="text/javascript">
+            rootAddress = "http://localhost:53299/api/";
+            //rootAddress = "http://aibattleground.com/api/";
+
+            $(function () { $("[data-toggle='tooltip']").tooltip(); });
+
+            $(document).ready(function () {
+                $("#enemy-address").hide();
+                getDropDowns();
+                getSavedOptions();
+
+                $('#fight-local').click(function() {
+                    if ($('#fight-local').is(':checked')) {
+                        $('#enemy-address').show();
+                        $('#enemy-selection').hide();
+                    } else {
+                        $('#enemy-address').hide();
+                        $('#enemy-selection').show();
+                    }
+                });
+            });
+
+            function getSavedOptions() {
+                var address = $.cookie('client-address');
+                $("#client-address").val(address);
+                var cors = $.cookie('cors');
+                $("#cors-on").prop('checked', cors);
+            }
+
+            function getDropDowns() {
+                $.ajax({
+                    url: rootAddress + "botlist",
+                    crossDomain: true,
+                    dataType: "json",
+                    success: function (response) {
+                        $.each(response, function (i, bot) {
+                            $("#enemy-selection").append($("<option></option>").attr("value", bot.id).text(bot.name));
+                        });
+                    },
+                    error: function (error) {
+                        writeError(error);
+                    }
+                });
+            }
+ 
+            $("#new-game").on('click', function () {
+                var clientAddress = $("#client-address").val();
+                $.cookie('client-address', clientAddress);
+                var seed = getSetSeed();
+                var side = getSide();
+                var p1Id = -1;
+                var p2Id = -1;
+                if (side == "P1") {
+                    $('#red-name').text($('#client-address').val());
+                    if ($('#enemy-selection').is(':visible')) {
+                        $('#blue-name').text($('#enemy-selection option:selected').text());
+                        p1Id = $('#enemy-selection').val();
+                    } else {
+                        $('#blue-name').text($('#enemy-address').val());
+                    }
+                }
+                if (side == "P2") {
+                    $('#blue-name').text($('#client-address').val());
+                    if ($('#enemy-selection').is(':visible')) {
+                        $('#red-name').text($('#enemy-selection option:selected').text());
+                        p2Id = $('#enemy-selection').val();
+                    } else {
+                        $('#red-name').text($('#enemy-address').val());
+                    }
+                }
+                $.ajax({
+                    url: rootAddress + "startgame",
+                    type: "POST",
+                    data: { p1Id: p1Id, p2Id: p2Id, seed: seed },
+                    dataType: "json",
+                    success: function (gameState) {
+                        showTurn(gameState);
+                        runGame(gameState);
+                    },
+                    error: function (error) {
+                        writeError(error);
+                    }
+                });
+            });
+
+            function getSetSeed() {
+                var seed = $("#seed").val();
+                if (seed.length < 1) {
+                    seed = Math.ceil(Math.random() * 100000000);
+                    $("#seed-output").text("Your game's seed value is " + seed + "\r\n" +
+                        "Enter this value above to replay energy spawn positions in a future game" +
+                        "Note: Enemy bots may use their own hidden randomizers in their algorithms, " +
+                        "so it may not be possible to replay the game exactly");
+                }
+                return seed;
+            }
+
+            function updateGame(localMoves, gameState) {
+                $.ajax({
+                    url: rootAddress + "updategame",
+                    type: "POST",
+                    data: { clientMoves: localMoves, gameState: gameState },
+                    success: function (newGameState) {
+                        if (newGameState.turnsElapsed < newGameState.maxTurns) {
+                            showTurn(newGameState);
+                            if (typeof newGameState.winner === "undefined") {
+                                runGame(newGameState);
+                            }
+                        }
+                    },
+                    error: function (error) {
+                        writeError(error);
+                    }
+                });
+            }
+
+
+            function getMovesRelay(moveRequest) {
+                var clientAddress = $("#client-address").val();
+                $.ajax({
+                    url: "relay.json",
+                    type: "POST",
+                    data: JSON.stringify({ payload: moveRequest, destination: clientAddress }),
+                    dataType: "json",
+                });
+            }
+
+            function getMovesCors(moveRequest) {
+                var clientAddress = $("#client-address").val();
+                $.ajax({
+                    url: clientAddress,
+                    type: "POST",
+                    data: moveRequest,
+                    dataType: "json",
+                });
+            }
+
+            function getMoves(gameState, playerName) {
+                var moveRequest = new Object();
+                moveRequest.player = playerName;
+                moveRequest.state = gameState;
+                if ($('#cors-on').is(':checked')) {
+                    return getMovesCors(moveRequest);
+                } else {
+                    return getMovesRelay(moveRequest);
+                }
+            }
+
+            function writeError(error) {
+                alert("Error: " + error.responseText);
+            }
+
+            function runGame(gameState) {
+                var p1Moves = getP1Moves(gameState);
+
+            }
+
+            function getP1Moves(gameState) {
+                if ($('#p1-select').is(':checked')) {
+                    return getMoves(gameState, "p1");
+                } else {
+                    
+                }
+            }
+
+            function getSide() {
+                if ($('#p2-select').is(':checked')) {
+                    $.cookie('cors', true);
+                    return "P2";
+                } else {
+                    $.cookie('cors', false);
+                    return "P1";
+                }
+            }
+
+
+        </script>
+    </body>
+</html>
