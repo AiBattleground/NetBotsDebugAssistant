@@ -23,9 +23,10 @@
                     <input type="text" id="client-address" placeholder="localhost:1234/bot" class="form-control">
                 </div>
                 <div class="col-sm-2 form-group">
-                    <label>Enemy</label>
-                    <select id="enemy-selection" placeholder="choose a bot..." class="form-control">
-                    </select>
+                    <div><label>Enemy</label></div>
+                    <select id="enemy-selection" placeholder="choose a bot..." class="form-control"></select>
+                    <input type="text" id="enemy-address" placeholder="localhost:1234/bot" class="form-control">
+                    <div style="font-size: x-small"><input class="small" id="fight-local" type="checkbox" name="side" value="p1">Fight Local Bot</div>
                 </div>
                 <div class="col-sm-2 form-group">
                     <label>Choose Your Side:</label><br/>
@@ -101,13 +102,26 @@
             $(function () { $("[data-toggle='tooltip']").tooltip(); });
 
             $(document).ready(function () {
+                $("#enemy-address").hide();
                 getDropDowns();
-                getLastAddress();
+                getSavedOptions();
+
+                $('#fight-local').click(function() {
+                    if ($('#fight-local').is(':checked')) {
+                        $('#enemy-address').show();
+                        $('#enemy-selection').hide();
+                    } else {
+                        $('#enemy-address').hide();
+                        $('#enemy-selection').show();
+                    }
+                });
             });
 
-            function getLastAddress() {
+            function getSavedOptions() {
                 var address = $.cookie('client-address');
                 $("#client-address").val(address);
+                var cors = $.cookie('cors');
+                $("#cors-on").prop('checked', cors);
             }
 
             function getDropDowns() {
@@ -125,6 +139,7 @@
                     }
                 });
             }
+
  
             $("#new-game").on('click', function () {
                 var clientAddress = $("#client-address").val();
@@ -235,11 +250,13 @@
             }
 
             function getSide() {
-                var side = "P1";
                 if ($('#p2-select').is(':checked')) {
-                    side = "P2";
+                    $.cookie('cors', true);
+                    return "P2";
+                } else {
+                    $.cookie('cors', false);
+                    return "P1";
                 }
-                return side;
             }
 
 
