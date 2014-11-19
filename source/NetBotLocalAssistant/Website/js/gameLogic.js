@@ -1,5 +1,6 @@
-﻿rootAddress = "http://localhost:53299/api/";
-//rootAddress = "http://aibattleground.com/api/";
+﻿//rootAddress = "http://localhost:53299/api/";
+rootAddress = "http://aibattleground.com/api/";
+version = 0;
 
 $(function () { $("[data-toggle='tooltip']").tooltip(); });
 
@@ -7,6 +8,7 @@ $(document).ready(function () {
     $("#enemy-address").hide();
     getDropDowns();
     getSavedOptions();
+    checkForUpdate();
 
     $('#fight-local').click(function () {
         if ($('#fight-local').is(':checked')) {
@@ -18,6 +20,24 @@ $(document).ready(function () {
         }
     });
 });
+
+function checkForUpdate() {
+    var jsonLoc = "http://pharylon.github.io/netbots-debug/version.json";
+    $.ajax({
+        url: "relay.json",
+        type: "POST",
+        data: JSON.stringify({ payload: null, destination: jsonLoc }),
+        dataType: "json",
+        success: function (versionInfo) {
+            if (versionInfo.version > version) {
+                $("#version-alert").show();
+            }
+        },
+        error: function (error) {
+            writeError(error);
+        }
+    });
+}
 
 function getSavedOptions() {
     var address = $.cookie('client-address');
