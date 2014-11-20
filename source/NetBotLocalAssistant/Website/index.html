@@ -36,7 +36,7 @@
             <div class="row">
                 <div class="col-sm-2 form-group">
                     <label>Game Seed</label>
-                    <input type="text" id="seed">
+                    <input class="form-control" type="text" id="seed">
                 </div>
                 <div class="col-sm-2 form-group">
                     <label>CORS?</label><br/>
@@ -74,7 +74,7 @@
                             <div class="col-sm-10" id="blue-game-end-message"></div>
                         </div>
                         <p id="turn-number"></p>
-                        <p>Our aerial reconnaissance vehicles are picking up the following feed of the battle as it unfolds. </p>
+                        <p><strong>New!</strong> Press the left arrow key to slow the game down, the right arrow key to speed it up, or the up arrow key to go at maximum speed!</p>
                         <p id="seed-output"></p>
                     </div>
                     <div class="col-md-6">
@@ -97,6 +97,7 @@
         <script type="text/javascript">
             //rootAddress = "http://localhost:53299/api/";
             rootAddress = "http://aibattleground.com/api/";
+            delay = 100;
 
             $(function () { $("[data-toggle='tooltip']").tooltip(); });
 
@@ -109,6 +110,20 @@
                 var address = $.cookie('client-address');
                 $("#client-address").val(address);
             }
+
+            $(function() {
+                $('html').keydown(function(e) {
+                    if (e.which == 39) {
+                        delay -= 100;
+                    }
+                    else if (e.which == 37) {
+                        delay += 100;
+                    }
+                    else if (e.which == 38) {
+                        delay = 0;
+                    }
+                });
+            });
 
             function getDropDowns() {
                 $.ajax({
@@ -192,7 +207,7 @@
                         if (newGameState.turnsElapsed < newGameState.maxTurns) {
                             showTurn(newGameState);
                             if (newGameState.winner == null) {
-                                runGame(newGameState);
+                                setTimeout(function() { runGame(newGameState);}, delay);
                             }
                         }
                     },
