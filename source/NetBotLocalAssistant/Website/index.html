@@ -16,6 +16,7 @@
         </title>
     </head>
     <body>
+        <div id="version-alert" class="alert alert-danger" style="display: none">A new version is available. Download at <a href="http://pharylon.github.io">pharylon.github.io</a></div>
         <div id="skirmish-options" class="container">
             <div class="row">
                 <div class="col-sm-2 form-group">
@@ -98,12 +99,32 @@
             //rootAddress = "http://localhost:53299/api/";
             rootAddress = "http://aibattleground.com/api/";
             delay = 100;
+            version = 2;
 
             $(function () { $("[data-toggle='tooltip']").tooltip(); });
+
+            function checkForUpdate() {
+                var jsonLoc = "http://pharylon.github.io/netbots-debug/version.json";
+                $.ajax({
+                    url: "relay.json",
+                    type: "POST",
+                    data: JSON.stringify({ payload: null, destination: jsonLoc }),
+                    dataType: "json",
+                    success: function (versionInfo) {
+                        if (versionInfo.version > version) {
+                            $("#version-alert").show();
+                        }
+                    },
+                    error: function (error) {
+                        writeError(error);
+                    }
+                });
+            }
 
             $(document).ready(function () {
                 getDropDowns();
                 getLastAddress();
+                checkForUpdate();
             });
 
             function getLastAddress() {
