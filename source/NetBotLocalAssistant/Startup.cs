@@ -73,8 +73,6 @@ namespace NetBotLocalAssistant
                     }
                     return responeString;
                 }
-
-                
             }
             catch (Exception ex)
             {
