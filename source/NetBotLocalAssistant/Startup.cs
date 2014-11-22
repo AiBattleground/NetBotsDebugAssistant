@@ -51,15 +51,30 @@ namespace NetBotLocalAssistant
                 }
                 string payloadJson = payload.ToString();
                 var content = new StringContent(payloadJson, Encoding.UTF8, "application/json");
-
-                var response = await _client.PostAsync(address, content);
-                response.EnsureSuccessStatusCode();
-                var responeString = await response.Content.ReadAsStringAsync();
-                if (String.IsNullOrWhiteSpace(responeString))
+                if (!String.IsNullOrWhiteSpace(payloadJson))
                 {
-                    responeString = "{ }";
+                    var response = await _client.PostAsync(address, content);
+                    response.EnsureSuccessStatusCode();
+                    var responeString = await response.Content.ReadAsStringAsync();
+                    if (String.IsNullOrWhiteSpace(responeString))
+                    {
+                        responeString = "{ }";
+                    }
+                    return responeString;
                 }
-                return responeString;
+                else
+                {
+                    var response = await _client.GetAsync(address);
+                    response.EnsureSuccessStatusCode();
+                    var responeString = await response.Content.ReadAsStringAsync();
+                    if (String.IsNullOrWhiteSpace(responeString))
+                    {
+                        responeString = "{ }";
+                    }
+                    return responeString;
+                }
+
+
             }
             catch (Exception ex)
             {
