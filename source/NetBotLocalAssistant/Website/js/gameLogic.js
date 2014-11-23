@@ -1,6 +1,6 @@
 ﻿//rootAddress = "http://localhost:53299/api/";
 rootAddress = "http://aibattleground.com/api/";
-version = 0;
+version = 3;
 
 $(function () { $("[data-toggle='tooltip']").tooltip(); });
 
@@ -186,7 +186,7 @@ function getMoves(gameState, playerName, address) {
     if ($('#cors-on').is(':checked')) {
         return getMovesCors(moveRequest, address);
     } else {
-        return getMovesRelay(moveRequest);
+        return getMovesRelay(moveRequest, address);
     }
 }
 
