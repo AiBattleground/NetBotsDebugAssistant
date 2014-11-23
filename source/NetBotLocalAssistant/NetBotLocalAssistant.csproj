@@ -133,6 +133,9 @@
     <Content Include="Website\js\bootstrap.min.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Website\js\gameLogic.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Website\js\jquery-2.1.1.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
