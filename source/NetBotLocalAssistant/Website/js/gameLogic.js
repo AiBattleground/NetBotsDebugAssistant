@@ -1,6 +1,22 @@
 ﻿//rootAddress = "http://localhost:53299/api/";
 rootAddress = "http://aibattleground.com/api/";
-version = 3;
+version = 3.1;
+
+var delay = 100;
+
+$(function () {
+    $('html').keydown(function (e) {
+        if (e.which == 39) {
+            delay -= 100;
+        }
+        else if (e.which == 37) {
+            delay += 100;
+        }
+        else if (e.which == 38) {
+            delay = 0;
+        }
+    });
+});
 
 $(function () { $("[data-toggle='tooltip']").tooltip(); });
 
@@ -148,7 +164,7 @@ function updateGame(gameState, p1Moves, p2Moves) {
                 if (newGameState.turnsElapsed < newGameState.maxTurns) {
                     showTurn(newGameState);
                     if (newGameState.winner == null) {
-                        runGame(newGameState);
+                        setTimeout(function () { runGame(newGameState); }, delay);
                     }
                 }
             },
