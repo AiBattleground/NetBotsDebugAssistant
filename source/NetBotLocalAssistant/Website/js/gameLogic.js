@@ -1,6 +1,6 @@
 ﻿//rootAddress = "http://localhost:53299/api/";
 rootAddress = "http://aibattleground.com/api/";
-version = 3.1;
+version = 3.2;
 
 var delay = 100;
 
@@ -59,7 +59,7 @@ function getSavedOptions() {
     var address = $.cookie('client-address');
     $("#client-address").val(address);
     var cors = $.cookie('cors');
-    $("#cors-on").prop('checked', cors);
+    $("#cors-on").prop('checked', cors == "true");
     var enemyAddress = $.cookie('enemy-address');
     if (typeof enemyAddress != 'undefined') {
         $('#enemy-address').val(enemyAddress);
@@ -102,9 +102,12 @@ function setCookies() {
     if (enemyAddress.length > 0) {
         $.cookie('enemy-address', clientAddress);
     }
+    var corsChecked = $("#cors-on").is(':checked');
+    $.cookie('cors', corsChecked);
 }
 
 $("#new-game").on('click', function () {
+    setCookies();
     var seed = getSetSeed();
     var side = getSide();
     var p1Id = getPlayerId("p1");
@@ -255,10 +258,8 @@ function getEnemyMoves(gameState) {
 
 function getSide() {
     if ($('#p2-select').is(':checked')) {
-        $.cookie('cors', true);
         return "P2";
     } else {
-        $.cookie('cors', false);
         return "P1";
     }
 }
