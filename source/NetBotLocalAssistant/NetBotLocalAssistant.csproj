@@ -89,15 +89,15 @@
     <None Include="Website\config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Website\fonts\glyphicons-halflings-regular.eot">
+    <Content Include="Website\fonts\glyphicons-halflings-regular.eot">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Website\fonts\glyphicons-halflings-regular.ttf">
+    </Content>
+    <Content Include="Website\fonts\glyphicons-halflings-regular.ttf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Website\fonts\glyphicons-halflings-regular.woff">
+    </Content>
+    <Content Include="Website\fonts\glyphicons-halflings-regular.woff">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Website\css\bootstrap-theme.css">

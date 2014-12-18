@@ -1,8 +1,8 @@
 ﻿//rootAddress = "http://localhost:53299/api/";
 rootAddress = "http://aibattleground.com/api/";
-version = 3.2;
+version = 3.3;
 
-var delay = 100;
+var delay = 250;
 
 $(function () {
     $('html').keydown(function (e) {
@@ -49,9 +49,6 @@ function checkForUpdate() {
                 $("#version-alert").show();
             }
         },
-        error: function (error) {
-            writeError(error);
-        }
     });
 }
 
@@ -77,7 +74,7 @@ function getDropDowns() {
             });
         },
         error: function (error) {
-            writeError(error);
+            writeError(error, "Error getting dropdowns from remote game server.");
         }
     });
 }
@@ -139,7 +136,7 @@ $("#new-game").on('click', function () {
             runGame(gameState);
         },
         error: function (error) {
-            writeError(error);
+            writeError(error, "Error starting game with remote game server");
         }
     });
 });
@@ -157,24 +154,13 @@ function getSetSeed() {
 }
 
 function updateGame(gameState, p1Moves, p2Moves) {
-    $.ajax({
-            url: rootAddress + "updategame",
-            type: "POST",
-            dataType: "json",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({ gameState: gameState, p1Moves: p1Moves, p2Moves: p2Moves }),
-            success: function (newGameState) {
-                if (newGameState.turnsElapsed < newGameState.maxTurns) {
-                    showTurn(newGameState);
-                    if (newGameState.winner == null) {
-                        setTimeout(function () { runGame(newGameState); }, delay);
-                    }
-                }
-            },
-            error: function (error) {
-                writeError(error);
-            }
-        });
+    return $.ajax({
+                url: rootAddress + "updategame",
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({ gameState: gameState, p1Moves: p1Moves, p2Moves: p2Moves })
+            });
 }
 
 
@@ -209,32 +195,62 @@ function getMoves(gameState, playerName, address) {
     }
 }
 
-function writeError(error) {
-    alert("Error: " + error.responseText);
+function writeError(error, errorText) {
+    if (typeof error.responeText != 'undefined') {
+        errorText += "  " + error.responeText;
+    }
+    alert("Error: " + errorText);
 }
 
 function runGame(gameState) {
+    var startTime = new Date();
     var clientIsP1 = $('#p1-select').is(':checked');
     var clientMoves = getPlayerMoves(gameState);
     clientMoves.done(function (cMoves) {
         if (cMoves == null) {
             cMoves = [];
         }
-        if ($('#fight-local').is(':checked')) {
+        var updateGame = getUpdatedGame(cMoves, clientIsP1, gameState);
+        updateGame.done(function(newGameState) {
+            if (newGameState.turnsElapsed < newGameState.maxTurns) {
+                showTurn(newGameState);
+                if (newGameState.winner == null) {
+                    var endTime = new Date();
+                    var executionTime = endTime.getTime() - startTime.getTime();
+                    var timeLeftToWait = delay - executionTime;
+                    if (timeLeftToWait < 0) {
+                        timeLeftToWait = 0;
+                    }
+                    setTimeout(function() { runGame(newGameState); } , timeLeftToWait);
+                }
+            }
+        });
+        updateGame.fail(function (jqXhr, textStatus, errorThrown) {
+            writeError(jqXhr, "Error contacting the remote game server.");
+        });
+    });
+    clientMoves.fail(function (jqXhr, textStatus, errorThrown) {
+        writeError(jqXhr, "There was an error communicating with your bot!");
+    });
+}
+
+
+function getUpdatedGame(cMoves, clientIsP1, gameState) {
+    var p1Moves;
+    var p2Moves;
+    if ($('#fight-local').is(':checked')) {
             getEnemyMoves(gameState).done(function (eMoves) {
                 if (eMoves == null) {
                     eMoves = [];
                 }
-                var p1Moves = clientIsP1 ? cMoves : eMoves;
-                var p2Moves = clientIsP1 ? eMoves : cMoves;
-                updateGame(gameState, p1Moves, p2Moves);
+                p1Moves = clientIsP1 ? cMoves : eMoves;
+                p2Moves = clientIsP1 ? eMoves : cMoves;
             });
         } else {
-            var p1Moves = clientIsP1 ? cMoves : null;
-            var p2Moves = clientIsP1 ? null : cMoves;
-            updateGame(gameState, p1Moves, p2Moves);
+            p1Moves = clientIsP1 ? cMoves : null;
+            p2Moves = clientIsP1 ? null : cMoves;
         }
-    });
+    return updateGame(gameState, p1Moves, p2Moves);
 }
 
 function getPlayerMoves(gameState) {
