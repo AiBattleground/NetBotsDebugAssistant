@@ -1,6 +1,6 @@
 ﻿//rootAddress = "http://localhost:53299/api/";
 rootAddress = "http://aibattleground.com/api/";
-version = 3.3;
+version = 3.4;
 
 var delay = 250;
 
@@ -81,14 +81,13 @@ function getDropDowns() {
 
 function getPlayerId(pName) {
     var selector = "#" + pName + "-select";
+    if ($('#fight-local').is(':checked')) {
+        return -1;
+    }
     if ($(selector).is(':checked')) {
         return -1;
     } else {
-        if ($('#fight-local').is('checked')) {
-            return -1;
-        } else {
-            return $('#enemy-selection').val();
-        }
+        return $('#enemy-selection').val();
     }
 }
 
@@ -210,23 +209,30 @@ function runGame(gameState) {
         if (cMoves == null) {
             cMoves = [];
         }
-        var updateGame = getUpdatedGame(cMoves, clientIsP1, gameState);
-        updateGame.done(function(newGameState) {
-            if (newGameState.turnsElapsed < newGameState.maxTurns) {
-                showTurn(newGameState);
-                if (newGameState.winner == null) {
-                    var endTime = new Date();
-                    var executionTime = endTime.getTime() - startTime.getTime();
-                    var timeLeftToWait = delay - executionTime;
-                    if (timeLeftToWait < 0) {
-                        timeLeftToWait = 0;
-                    }
-                    setTimeout(function() { runGame(newGameState); } , timeLeftToWait);
-                }
+        getEnemyMoves(gameState).done(function (eMoves) {
+            if (eMoves == null) {
+                eMoves = [];
             }
-        });
-        updateGame.fail(function (jqXhr, textStatus, errorThrown) {
-            writeError(jqXhr, "Error contacting the remote game server.");
+            var p1Moves = clientIsP1 ? cMoves : eMoves;
+            var p2Moves = clientIsP1 ? eMoves : cMoves;
+            var uGameReq = updateGame(gameState, p1Moves, p2Moves);
+            uGameReq.done(function(newGameState) {
+                if (newGameState.turnsElapsed < newGameState.maxTurns) {
+                    showTurn(newGameState);
+                    if (newGameState.winner == null) {
+                        var endTime = new Date();
+                        var executionTime = endTime.getTime() - startTime.getTime();
+                        var timeLeftToWait = delay - executionTime;
+                        if (timeLeftToWait < 0) {
+                            timeLeftToWait = 0;
+                        }
+                        setTimeout(function () { runGame(newGameState); }, timeLeftToWait);
+                    }
+                }
+            });
+            uGameReq.fail(function (jqXhr, textStatus, errorThrown) {
+                writeError(jqXhr, "Error contacting the remote game server.");
+            });
         });
     });
     clientMoves.fail(function (jqXhr, textStatus, errorThrown) {
@@ -235,23 +241,6 @@ function runGame(gameState) {
 }
 
 
-function getUpdatedGame(cMoves, clientIsP1, gameState) {
-    var p1Moves;
-    var p2Moves;
-    if ($('#fight-local').is(':checked')) {
-            getEnemyMoves(gameState).done(function (eMoves) {
-                if (eMoves == null) {
-                    eMoves = [];
-                }
-                p1Moves = clientIsP1 ? cMoves : eMoves;
-                p2Moves = clientIsP1 ? eMoves : cMoves;
-            });
-        } else {
-            p1Moves = clientIsP1 ? cMoves : null;
-            p2Moves = clientIsP1 ? null : cMoves;
-        }
-    return updateGame(gameState, p1Moves, p2Moves);
-}
 
 function getPlayerMoves(gameState) {
     var address = $('#client-address').val();
@@ -263,12 +252,19 @@ function getPlayerMoves(gameState) {
 }
 
 function getEnemyMoves(gameState) {
-    var address = $('#enemy-address').val();
-    if ($('#p1-select').is(':checked')) {
-        return getMoves(gameState, "p2", address);
+    if ($('#fight-local').is(':checked')) {
+        var address = $('#enemy-address').val();
+        if ($('#p1-select').is(':checked')) {
+            return getMoves(gameState, "p2", address);
+        } else {
+            return getMoves(gameState, "p1", address);
+        }
     } else {
-        return getMoves(gameState, "p1", address);
+        var emptyPromise = new $.Deferred();
+        emptyPromise.resolve(null);
+        return emptyPromise;
     }
+    
 }
 
 
