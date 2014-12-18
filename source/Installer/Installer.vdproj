@@ -58,7 +58,7 @@
         "Entry"
         {
         "MsmKey" = "8:_AF7304FE02272CAE8A1FE683B24B2C8F"
-        "OwnerKey" = "8:_5679D8255E21EFE66F1197F506C8EB2F"
+        "OwnerKey" = "8:_66F762FE676D4D50912C6E07B00D45A2"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -70,7 +70,7 @@
         "Entry"
         {
         "MsmKey" = "8:_AF7304FE02272CAE8A1FE683B24B2C8F"
-        "OwnerKey" = "8:_66F762FE676D4D50912C6E07B00D45A2"
+        "OwnerKey" = "8:_5679D8255E21EFE66F1197F506C8EB2F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -88,13 +88,13 @@
         "Entry"
         {
         "MsmKey" = "8:_E13E0FAB5EA478F3981E7452067AF5D5"
-        "OwnerKey" = "8:_5679D8255E21EFE66F1197F506C8EB2F"
+        "OwnerKey" = "8:_5401298CBF838E49046536D5462F6647"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_E13E0FAB5EA478F3981E7452067AF5D5"
-        "OwnerKey" = "8:_5401298CBF838E49046536D5462F6647"
+        "OwnerKey" = "8:_5679D8255E21EFE66F1197F506C8EB2F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -106,31 +106,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_984FE0C9A493EE2AFC3158E865C91ADD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_AF7304FE02272CAE8A1FE683B24B2C8F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E13E0FAB5EA478F3981E7452067AF5D5"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5679D8255E21EFE66F1197F506C8EB2F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_29E3E97835A8CE9DCEF9A3D06F962EE5"
+        "OwnerKey" = "8:_B43F58FCFA353B704666EA92F1ECE737"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -142,7 +118,31 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_B43F58FCFA353B704666EA92F1ECE737"
+        "OwnerKey" = "8:_29E3E97835A8CE9DCEF9A3D06F962EE5"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_5679D8255E21EFE66F1197F506C8EB2F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_E13E0FAB5EA478F3981E7452067AF5D5"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_AF7304FE02272CAE8A1FE683B24B2C8F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_984FE0C9A493EE2AFC3158E865C91ADD"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -247,6 +247,11 @@
             "AssemblyAsmDisplayName" = "8:Microsoft.Owin.Host.HttpListener, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_29E3E97835A8CE9DCEF9A3D06F962EE5"
+                    {
+                    "Name" = "8:Microsoft.Owin.Host.HttpListener.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Microsoft.Owin.Host.HttpListener.dll"
             "TargetName" = "8:"
@@ -273,6 +278,11 @@
             "AssemblyAsmDisplayName" = "8:Microsoft.Owin.Hosting, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_5401298CBF838E49046536D5462F6647"
+                    {
+                    "Name" = "8:Microsoft.Owin.Hosting.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Microsoft.Owin.Hosting.dll"
             "TargetName" = "8:"
@@ -299,6 +309,11 @@
             "AssemblyAsmDisplayName" = "8:Microsoft.Owin.Diagnostics, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_5679D8255E21EFE66F1197F506C8EB2F"
+                    {
+                    "Name" = "8:Microsoft.Owin.Diagnostics.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Microsoft.Owin.Diagnostics.dll"
             "TargetName" = "8:"
@@ -345,6 +360,11 @@
             "AssemblyAsmDisplayName" = "8:System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
                 "ScatterAssemblies"
                 {
+                    "_984FE0C9A493EE2AFC3158E865C91ADD"
+                    {
+                    "Name" = "8:System.Net.Http.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:System.Net.Http.dll"
             "TargetName" = "8:"
@@ -371,6 +391,11 @@
             "AssemblyAsmDisplayName" = "8:Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_AF7304FE02272CAE8A1FE683B24B2C8F"
+                    {
+                    "Name" = "8:Owin.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Owin.dll"
             "TargetName" = "8:"
@@ -397,6 +422,11 @@
             "AssemblyAsmDisplayName" = "8:Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_B43F58FCFA353B704666EA92F1ECE737"
+                    {
+                    "Name" = "8:Newtonsoft.Json.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Newtonsoft.Json.dll"
             "TargetName" = "8:"
@@ -423,6 +453,11 @@
             "AssemblyAsmDisplayName" = "8:Microsoft.Owin, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_E13E0FAB5EA478F3981E7452067AF5D5"
+                    {
+                    "Name" = "8:Microsoft.Owin.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Microsoft.Owin.dll"
             "TargetName" = "8:"
@@ -498,15 +533,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:NetBotsDebugAssistant"
-        "ProductCode" = "8:{C7CBBC56-0D42-421E-8F42-F7B4550DC986}"
-        "PackageCode" = "8:{F44FC617-D093-4DE5-A0B1-885EEF7B271C}"
+        "ProductCode" = "8:{ADA8A645-05DF-468B-95BF-490A38474D10}"
+        "PackageCode" = "8:{EA5304B8-2377-4C3C-8B63-C56E2D759ED3}"
         "UpgradeCode" = "8:{798D6D2E-2544-4516-90A3-A738A6778721}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:3.3.0"
+        "ProductVersion" = "8:3.4.0"
         "Manufacturer" = "8:AiBattleground"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
